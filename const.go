@@ -36,8 +36,8 @@ const (
 	commandTypeUpdate         = 0x0A
 	commandTypeGetRotation    = 0x0C
 	commandTypeSetRotation    = 0x0D
-	commandTypeLoadFont       = 0x0E
-	commandTypeLoadImage      = 0x0F
+	commandTypeLoadFonts      = 0x0E
+	commandTypeLoadImages     = 0x0F
 
 	// Display parameter configuration
 	commandTypeSetColor           = 0x10

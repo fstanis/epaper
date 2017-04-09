@@ -2,7 +2,10 @@ package epaper
 
 import "github.com/tarm/serial"
 
-const defaultBaud = 115200
+const (
+	defaultBaud     = 115200
+	maxResponseSize = 32
+)
 
 type Client struct {
 	port *serial.Port
@@ -20,8 +23,12 @@ func NewWithBaud(port string, baud int) (*Client, error) {
 	return &Client{s}, nil
 }
 
+func (c *Client) Close() error {
+	return c.port.Close()
+}
+
 func (c *Client) readResponse() (string, error) {
-	buf := make([]byte, 128)
+	buf := make([]byte, maxResponseSize)
 	n, err := c.port.Read(buf)
 	if err != nil {
 		return "", err
@@ -29,8 +36,8 @@ func (c *Client) readResponse() (string, error) {
 	return string(buf[:n]), nil
 }
 
-func (c *Client) SendCommand(frame *Frame) (string, error) {
-	_, err := c.port.Write(frame.Build())
+func (c *Client) sendCommand(frm *frame) (string, error) {
+	_, err := c.port.Write(frm.Build())
 	if err != nil {
 		return "", err
 	}

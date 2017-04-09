@@ -1,153 +1,141 @@
 package epaper
 
-var (
-	CommandHandshake      = &Frame{CommandType: commandTypeHandshake}
-	CommandGetBaudRate    = &Frame{CommandType: commandTypeGetBaudRate}
-	CommandGetStorageType = &Frame{CommandType: commandTypeGetStorageType}
-	CommandSleep          = &Frame{CommandType: commandTypeSleep}
-	CommandUpdate         = &Frame{CommandType: commandTypeUpdate}
-	CommandGetRotation    = &Frame{CommandType: commandTypeGetRotation}
-	CommandLoadFont       = &Frame{CommandType: commandTypeLoadFont}
-	CommandLoadImage      = &Frame{CommandType: commandTypeLoadImage}
-
-	CommandGetColor           = &Frame{CommandType: commandTypeGetColor}
-	CommandGetEnglishFontSize = &Frame{CommandType: commandTypeGetEnglishFontSize}
-	CommandGetChineseFontSize = &Frame{CommandType: commandTypeGetChineseFontSize}
-
-	CommandClear = &Frame{CommandType: commandTypeClear}
-)
-
-func CommandSetBaudRate(rate uint32) *Frame {
-	frame := &Frame{CommandType: commandTypeSetBaudRate}
-	frame.DataAddDword(rate)
-	return frame
+func (c *Client) Handshake() error {
+	frm := newFrame(commandTypeHandshake)
+	return wantOK(parseResponse(c.sendCommand(frm)))
 }
 
-func CommandSetStorageType(useMicroSD bool) *Frame {
-	area := byte(0)
-	if useMicroSD {
-		area = 1
-	}
-
-	frame := &Frame{CommandType: commandTypeSetStorageType}
-	frame.DataAddByte(area)
-	return frame
+func (c *Client) SetBaudRate(rate int) error {
+	frm := newFrame(commandTypeSetBaudRate, uint32(rate))
+	return wantOK(parseResponse(c.sendCommand(frm)))
 }
 
-func CommandSetRotation(rotate bool) *Frame {
-	rotation := byte(0)
-	if rotate {
-		rotation = 1
-	}
-
-	frame := &Frame{CommandType: commandTypeSetRotation}
-	frame.DataAddByte(rotation)
-	return frame
+func (c *Client) GetBaudRate() (int, error) {
+	frm := newFrame(commandTypeGetBaudRate)
+	return parseInt(parseResponse(c.sendCommand(frm)))
 }
 
-func CommandSetColor(foreground Color, background Color) *Frame {
-	frame := &Frame{CommandType: commandTypeSetColor}
-	frame.DataAddByte(byte(foreground))
-	frame.DataAddByte(byte(background))
-	return frame
+func (c *Client) IsStorageSDCard() (bool, error) {
+	frm := newFrame(commandTypeGetStorageType)
+	return parseBool(parseResponse(c.sendCommand(frm)))
 }
 
-func CommandSetEnglishFontSize(size FontSize) *Frame {
-	frame := &Frame{CommandType: commandTypeSetEnglishFontSize}
-	frame.DataAddByte(byte(size))
-	return frame
+func (c *Client) SetStorageType(useMicroSD bool) error {
+	frm := newFrame(commandTypeSetStorageType, boolToByte(useMicroSD))
+	return wantOK(parseResponse(c.sendCommand(frm)))
 }
 
-func CommandSetChineseFontSize(size FontSize) *Frame {
-	frame := &Frame{CommandType: commandTypeSetChineseFontSize}
-	frame.DataAddByte(byte(size))
-	return frame
+func (c *Client) Sleep() error {
+	frm := newFrame(commandTypeSleep)
+	return wantOK(parseResponse(c.sendCommand(frm)))
 }
 
-func CommandFillPixel(x uint16, y uint16) *Frame {
-	frame := &Frame{CommandType: commandTypeFillPixel}
-	frame.DataAddShort(x)
-	frame.DataAddShort(y)
-	return frame
+func (c *Client) Update() error {
+	frm := newFrame(commandTypeUpdate)
+	return wantOK(parseResponse(c.sendCommand(frm)))
 }
 
-func CommandDrawLine(x1 uint16, y1 uint16, x2 uint16, y2 uint16) *Frame {
-	frame := &Frame{CommandType: commandTypeDrawLine}
-	frame.DataAddShort(x1)
-	frame.DataAddShort(y1)
-	frame.DataAddShort(x2)
-	frame.DataAddShort(y2)
-	return frame
+func (c *Client) IsRotated() (bool, error) {
+	frm := newFrame(commandTypeGetRotation)
+	return parseBool(parseResponse(c.sendCommand(frm)))
 }
 
-func CommandFillRect(x1 uint16, y1 uint16, x2 uint16, y2 uint16) *Frame {
-	frame := &Frame{CommandType: commandTypeFillRect}
-	frame.DataAddShort(x1)
-	frame.DataAddShort(y1)
-	frame.DataAddShort(x2)
-	frame.DataAddShort(y2)
-	return frame
+func (c *Client) SetRotation(rotated bool) error {
+	frm := newFrame(commandTypeSetRotation, boolToByte(rotated))
+	return wantOK(parseResponse(c.sendCommand(frm)))
 }
 
-func CommandDrawRect(x1 uint16, y1 uint16, x2 uint16, y2 uint16) *Frame {
-	frame := &Frame{CommandType: commandTypeDrawRect}
-	frame.DataAddShort(x1)
-	frame.DataAddShort(y1)
-	frame.DataAddShort(x2)
-	frame.DataAddShort(y2)
-	return frame
+func (c *Client) LoadFonts() error {
+	frm := newFrame(commandTypeLoadFonts)
+	return wantOK(parseResponse(c.sendCommand(frm)))
 }
 
-func CommandDrawCircle(x uint16, y uint16, r uint16) *Frame {
-	frame := &Frame{CommandType: commandTypeDrawCircle}
-	frame.DataAddShort(x)
-	frame.DataAddShort(y)
-	frame.DataAddShort(r)
-	return frame
+func (c *Client) LoadImages() error {
+	frm := newFrame(commandTypeLoadImages)
+	return wantOK(parseResponse(c.sendCommand(frm)))
 }
 
-func CommandFillCircle(x uint16, y uint16, r uint16) *Frame {
-	frame := &Frame{CommandType: commandTypeFillCircle}
-	frame.DataAddShort(x)
-	frame.DataAddShort(y)
-	frame.DataAddShort(r)
-	return frame
+func (c *Client) SetColor(foreground Color, background Color) error {
+	frm := newFrame(commandTypeSetColor, byte(foreground), byte(background))
+	return wantOK(parseResponse(c.sendCommand(frm)))
 }
 
-func CommandDrawTriangle(x1 uint16, y1 uint16, x2 uint16, y2 uint16, x3 uint16, y3 uint16) *Frame {
-	frame := &Frame{CommandType: commandTypeDrawTriangle}
-	frame.DataAddShort(x1)
-	frame.DataAddShort(y1)
-	frame.DataAddShort(x2)
-	frame.DataAddShort(y2)
-	frame.DataAddShort(x3)
-	frame.DataAddShort(y3)
-	return frame
+func (c *Client) GetColor() (Color, Color, error) {
+	frm := newFrame(commandTypeGetColor)
+	return parseColors(parseResponse(c.sendCommand(frm)))
 }
 
-func CommandFillTriangle(x1 uint16, y1 uint16, x2 uint16, y2 uint16, x3 uint16, y3 uint16) *Frame {
-	frame := &Frame{CommandType: commandTypeFillTriangle}
-	frame.DataAddShort(x1)
-	frame.DataAddShort(y1)
-	frame.DataAddShort(x2)
-	frame.DataAddShort(y2)
-	frame.DataAddShort(x3)
-	frame.DataAddShort(y3)
-	return frame
+func (c *Client) GetEnglishFontSize() (FontSize, error) {
+	frm := newFrame(commandTypeGetEnglishFontSize)
+	return parseFontSize(parseResponse(c.sendCommand(frm)))
 }
 
-func CommandDisplayText(x uint16, y uint16, text string) *Frame {
-	frame := &Frame{CommandType: commandTypeDisplayText}
-	frame.DataAddShort(x)
-	frame.DataAddShort(y)
-	frame.DataAddString(text)
-	return frame
+func (c *Client) GetChineseFontSize() (FontSize, error) {
+	frm := newFrame(commandTypeGetChineseFontSize)
+	return parseFontSize(parseResponse(c.sendCommand(frm)))
 }
 
-func CommandDisplayImage(x uint16, y uint16, file string) *Frame {
-	frame := &Frame{CommandType: commandTypeDisplayImage}
-	frame.DataAddShort(x)
-	frame.DataAddShort(y)
-	frame.DataAddString(file)
-	return frame
+func (c *Client) SetEnglishFontSize(size FontSize) error {
+	frm := newFrame(commandTypeSetEnglishFontSize, byte(size))
+	return wantOK(parseResponse(c.sendCommand(frm)))
+}
+
+func (c *Client) SetChineseFontSize(size FontSize) error {
+	frm := newFrame(commandTypeSetChineseFontSize, byte(size))
+	return wantOK(parseResponse(c.sendCommand(frm)))
+}
+
+func (c *Client) FillPixel(x uint16, y uint16) error {
+	frm := newFrame(commandTypeFillPixel, x, y)
+	return wantOK(parseResponse(c.sendCommand(frm)))
+}
+
+func (c *Client) DrawLine(x1 uint16, y1 uint16, x2 uint16, y2 uint16) error {
+	frm := newFrame(commandTypeDrawLine, x1, y1, x2, y2)
+	return wantOK(parseResponse(c.sendCommand(frm)))
+}
+
+func (c *Client) FillRect(x1 uint16, y1 uint16, x2 uint16, y2 uint16) error {
+	frm := newFrame(commandTypeFillRect, x1, y1, x2, y2)
+	return wantOK(parseResponse(c.sendCommand(frm)))
+}
+
+func (c *Client) DrawRect(x1 uint16, y1 uint16, x2 uint16, y2 uint16) error {
+	frm := newFrame(commandTypeDrawRect, x1, y1, x2, y2)
+	return wantOK(parseResponse(c.sendCommand(frm)))
+}
+
+func (c *Client) DrawCircle(x uint16, y uint16, r uint16) error {
+	frm := newFrame(commandTypeDrawCircle, x, y, r)
+	return wantOK(parseResponse(c.sendCommand(frm)))
+}
+
+func (c *Client) FillCircle(x uint16, y uint16, r uint16) error {
+	frm := newFrame(commandTypeFillCircle, x, y, r)
+	return wantOK(parseResponse(c.sendCommand(frm)))
+}
+
+func (c *Client) DrawTriangle(x1 uint16, y1 uint16, x2 uint16, y2 uint16, x3 uint16, y3 uint16) error {
+	frm := newFrame(commandTypeDrawTriangle, x1, y1, x2, y2, x3, y3)
+	return wantOK(parseResponse(c.sendCommand(frm)))
+}
+
+func (c *Client) FillTriangle(x1 uint16, y1 uint16, x2 uint16, y2 uint16, x3 uint16, y3 uint16) error {
+	frm := newFrame(commandTypeFillTriangle, x1, y1, x2, y2, x3, y3)
+	return wantOK(parseResponse(c.sendCommand(frm)))
+}
+
+func (c *Client) Clear() error {
+	frm := newFrame(commandTypeClear)
+	return wantOK(parseResponse(c.sendCommand(frm)))
+}
+
+func (c *Client) DisplayText(x uint16, y uint16, text string) error {
+	frm := newFrame(commandTypeDisplayText, x, y, text)
+	return wantOK(parseResponse(c.sendCommand(frm)))
+}
+
+func (c *Client) DisplayImage(x uint16, y uint16, file string) error {
+	frm := newFrame(commandTypeDisplayImage, x, y, file)
+	return wantOK(parseResponse(c.sendCommand(frm)))
 }
