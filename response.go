@@ -40,7 +40,7 @@ var (
 	colors = map[byte]Color{
 		'0': ColorBlack,
 		'1': ColorDarkGray,
-		'2': ColorGray,
+		'2': ColorLightGray,
 		'3': ColorWhite,
 	}
 
@@ -66,7 +66,7 @@ func parseError(resp string) error {
 
 func parseResponse(resp string, err error) (string, error) {
 	if err != nil {
-		return "", fmt.Errorf("communication error: %v")
+		return "", fmt.Errorf("communication error: %v", err)
 	}
 
 	if err = parseError(resp); err != nil {

@@ -3,10 +3,10 @@ package epaper
 type Color byte
 
 const (
-	ColorBlack    Color = 0x00
-	ColorGray     Color = 0x01
-	ColorDarkGray Color = 0x02
-	ColorWhite    Color = 0x03
+	ColorBlack     Color = 0x00
+	ColorDarkGray  Color = 0x01
+	ColorLightGray Color = 0x02
+	ColorWhite     Color = 0x03
 )
 
 type FontSize byte
