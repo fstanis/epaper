@@ -90,8 +90,18 @@ func (c *Client) FillPixel(x uint16, y uint16) error {
 	return wantOK(parseResponse(c.sendCommand(frm)))
 }
 
+func (c *Client) ColorPixel(x uint16, y uint16, color Color) error {
+	frm := newFrame(commandTypeColorPixel, x, y, byte(color))
+	return wantOK(parseResponse(c.sendCommand(frm)))
+}
+
 func (c *Client) DrawLine(x1 uint16, y1 uint16, x2 uint16, y2 uint16) error {
 	frm := newFrame(commandTypeDrawLine, x1, y1, x2, y2)
+	return wantOK(parseResponse(c.sendCommand(frm)))
+}
+
+func (c *Client) ColorLine(x1 uint16, y1 uint16, x2 uint16, y2 uint16, color Color) error {
+	frm := newFrame(commandTypeColorLine, x1, y1, x2, y2, byte(color))
 	return wantOK(parseResponse(c.sendCommand(frm)))
 }
 
@@ -127,6 +137,11 @@ func (c *Client) FillTriangle(x1 uint16, y1 uint16, x2 uint16, y2 uint16, x3 uin
 
 func (c *Client) Clear() error {
 	frm := newFrame(commandTypeClear)
+	return wantOK(parseResponse(c.sendCommand(frm)))
+}
+
+func (c *Client) FillScreen(color Color) error {
+	frm := newFrame(commandTypeFillScreen, byte(color))
 	return wantOK(parseResponse(c.sendCommand(frm)))
 }
 

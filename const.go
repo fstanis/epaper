@@ -49,7 +49,9 @@ const (
 
 	// Basic drawings
 	commandTypeFillPixel    = 0x20
+	commandTypeColorPixel   = 0x21
 	commandTypeDrawLine     = 0x22
+	commandTypeColorLine    = 0x23
 	commandTypeFillRect     = 0x24
 	commandTypeDrawRect     = 0x25
 	commandTypeDrawCircle   = 0x26
@@ -57,6 +59,7 @@ const (
 	commandTypeDrawTriangle = 0x28
 	commandTypeFillTriangle = 0x29
 	commandTypeClear        = 0x2E
+	commandTypeFillScreen   = 0x2F
 
 	// Display text
 	commandTypeDisplayText = 0x30
