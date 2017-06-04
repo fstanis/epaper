@@ -15,22 +15,22 @@ func parity(data []byte) byte {
 }
 
 type frame struct {
-	CommandType byte
+	commandType byte
 	data        bytes.Buffer
 }
 
 func newFrame(commandType byte, datas ...interface{}) *frame {
-	frame := &frame{CommandType: commandType}
+	frame := &frame{commandType: commandType}
 	for _, data := range datas {
 		switch val := data.(type) {
 		case byte:
-			frame.DataAddByte(val)
+			frame.dataAddByte(val)
 		case uint16:
-			frame.DataAddShort(val)
+			frame.dataAddShort(val)
 		case uint32:
-			frame.DataAddDword(val)
+			frame.dataAddDword(val)
 		case string:
-			frame.DataAddString(val)
+			frame.dataAddString(val)
 		default:
 			log.Fatalf("Unknown data type in frame: %T", data)
 		}
@@ -38,39 +38,39 @@ func newFrame(commandType byte, datas ...interface{}) *frame {
 	return frame
 }
 
-func (f *frame) DataClear() {
+func (f *frame) dataClear() {
 	f.data = bytes.Buffer{}
 }
 
-func (f *frame) DataAddByte(b byte) {
+func (f *frame) dataAddByte(b byte) {
 	f.data.WriteByte(b)
 }
 
-func (f *frame) DataAddShort(short uint16) {
+func (f *frame) dataAddShort(short uint16) {
 	binary.Write(&f.data, binary.BigEndian, short)
 }
 
-func (f *frame) DataAddDword(dword uint32) {
+func (f *frame) dataAddDword(dword uint32) {
 	binary.Write(&f.data, binary.BigEndian, dword)
 }
 
-func (f *frame) DataAddString(str string) {
+func (f *frame) dataAddString(str string) {
 	f.data.WriteString(str)
 	f.data.WriteByte(0)
 }
 
-func (f *frame) Length() int {
+func (f *frame) length() int {
 	return 9 + f.data.Len()
 }
 
-func (f *frame) Build() []byte {
-	length := f.Length()
+func (f *frame) build() []byte {
+	length := f.length()
 	result := new(bytes.Buffer)
 	result.Grow(length)
 
 	result.WriteByte(frameHeader)
 	binary.Write(result, binary.BigEndian, uint16(length))
-	result.WriteByte(f.CommandType)
+	result.WriteByte(f.commandType)
 	f.data.WriteTo(result)
 	result.WriteByte(frameFooter0)
 	result.WriteByte(frameFooter1)

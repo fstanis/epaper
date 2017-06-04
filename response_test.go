@@ -52,8 +52,8 @@ func TestFontSize(t *testing.T) {
 
 func TestColors(t *testing.T) {
 	f, b, _ := parseColors("12", nil)
-	if f != ColorDarkGray || b != ColorGray {
-		t.Errorf("want ColorGray, ColorDarkGray, got %v, %v", f, b)
+	if f != ColorDarkGray || b != ColorLightGray {
+		t.Errorf("want ColorLightGray, ColorDarkGray, got %v, %v", f, b)
 	}
 
 	_, _, err := parseColors("12345", nil)

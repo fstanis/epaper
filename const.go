@@ -1,5 +1,6 @@
 package epaper
 
+// Color used to draw objects or as background.
 type Color byte
 
 const (
@@ -9,6 +10,15 @@ const (
 	ColorWhite     Color = 0x03
 )
 
+// All the colors available on the device.
+var Colors = [...]Color{
+	ColorBlack,
+	ColorDarkGray,
+	ColorLightGray,
+	ColorWhite,
+}
+
+// Font size for displaying text.
 type FontSize byte
 
 const (
@@ -16,6 +26,15 @@ const (
 	FontSize48 FontSize = 0x02
 	FontSize64 FontSize = 0x03
 )
+
+// All the font sizes available on the device. `FontSize(0)` is invalid, kept
+// solely to ensure array indices are aligned with the constant values.
+var FontSizes = [...]FontSize{
+	FontSize(0),
+	FontSize32,
+	FontSize48,
+	FontSize64,
+}
 
 const (
 	frameHeader  = 0xA5
