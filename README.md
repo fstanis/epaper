@@ -64,7 +64,7 @@ The following commands are able to modify the "screen state":
   ep.Close()
 ```
 
-For a more comprehensive example, see `example_test.go`.
+For a more comprehensive example, see [example_test.go](https://github.com/fstanis/epaper/blob/master/example_test.go).
 
 ## Documentation
 
